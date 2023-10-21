@@ -25,8 +25,12 @@ public class ShoppingList {
     private Instant timeOfLastEditing;
 
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    @JoinColumn(name = "shopping_List_Id")
+    @JoinColumn(name = "shopping_list_id")
     @JsonManagedReference
     private List<Product> products;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

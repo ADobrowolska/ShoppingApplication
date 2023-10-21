@@ -1,6 +1,5 @@
 package com.shoppingapp.ShoppingApplication.dto.shoppinglist;
 
-import com.shoppingapp.ShoppingApplication.dto.product.ProductDTO;
 import com.shoppingapp.ShoppingApplication.dto.product.ProductDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
@@ -47,7 +46,6 @@ public class ShoppingListDTOMapper {
                         .map(ProductDTOMapper::mapToProductDTO)
                         .toList()
                         : new ArrayList<>())
-                //               .products(ProductDTOMapper.mapToProductDTOs(new ArrayList<>(shoppingList.getProducts())))
                 .categories(getCategories(shoppingList.getProducts()))
                 .build();
     }
@@ -64,13 +62,7 @@ public class ShoppingListDTOMapper {
                 productsGroupByCategoryMap.put(product.getCategory(), nonExistedListOfProducts);
             }
         }
-        /**
-         * [
-         *  { "categoria1" : "{produkt1, produkt2}"},
-         *  { "categoria2" : "{produkt3, produkt4"},
-         *  { "categoria3" : "{produkt5}"}
-         * ]
-         */
+
         List<ShoppingListCategoryDTO> shoppingListCategoryDTOS = new ArrayList<>();
         for (Map.Entry<Category, List<Product>> entry : productsGroupByCategoryMap.entrySet()) {
             Category category = entry.getKey();
@@ -84,58 +76,4 @@ public class ShoppingListDTOMapper {
         }
         return shoppingListCategoryDTOS;
     }
-
-    /**
-     * products: [
-     * {name: chleb, kat: pieczywo},
-     * {name: kawa, kat: picie},
-     * {name: sol, kat: przyprawa},
-     * {name: bulka, kat: pieczywo}
-     * ] => [
-     * {kat: pieczywo, products: [chleb, bluka]},
-     * {kat: picie, products: [kawa]},
-     * {kat: przyprawa, products: [sol]}
-     * ]
-     *
-     * @param products
-     * @return
-     */
-
-    //2 sposób:
-
-//    private static List<ShoppingListCategoryDTO> getCategories2(List<Product> products) {
-//        List<ShoppingListCategoryDTO> shoppingListCategoryDTOS = new ArrayList<>();
-//
-//        for (Product product : products) {
-//            ShoppingListCategoryDTO existed = null;
-//            for (ShoppingListCategoryDTO shoppingListCategoryDTO : shoppingListCategoryDTOS) {
-//                if (shoppingListCategoryDTO.getId() == product.getCategory().getId()) {
-//                    existed = shoppingListCategoryDTO;
-//                    break;
-//                }
-//            }
-//
-//            if (existed != null) {
-//                existed.getProducts().add(ProductDTOMapper.mapToProductDTO(product));
-//            } else {
-//                List<ProductDTO> productDTOS = new ArrayList<>();
-//                productDTOS.add(ProductDTOMapper.mapToProductDTO(product));
-//                ShoppingListCategoryDTO shoppingListCategoryDTO = ShoppingListCategoryDTO.builder()
-//                        .id(product.getCategory().getId())
-//                        .name(product.getCategory().getName())
-//                        .products(productDTOS)
-//                        .build();
-//                shoppingListCategoryDTOS.add(shoppingListCategoryDTO);
-//            }
-//
-//        }
-//        //petla for po produktach
-//        //dla kazdego produktu sprwdzamy czy juz istnieje w categoryDTOS
-//        //jezeli tak to dodajemy produkt do istniejacej kategorii
-//        // jezeli nie to dodajemy nowa kategorie
-//
-//
-//        return shoppingListCategoryDTOS;
-//    }
-
 }

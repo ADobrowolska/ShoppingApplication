@@ -18,15 +18,16 @@ public class Product {
     private String name;
     private int quantity;
 
-    @Column(name = "shopping_list_id", insertable = false, updatable = false)
-    private Integer shoppingListId;
+//    @Column(name = "shopping_list_id", insertable = false, updatable = false)
+//    private Integer shoppingListId;
 
-    @ToString.Exclude
+//    @ToString.Exclude
     @ManyToOne
-    @JsonBackReference
+//    @JsonBackReference
     private ShoppingList shoppingList;
 
     @ManyToOne
-    private Category category; // (category_id)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
 }

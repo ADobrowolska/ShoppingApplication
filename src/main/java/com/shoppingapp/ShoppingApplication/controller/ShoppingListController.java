@@ -56,8 +56,6 @@ public class ShoppingListController {
     public void deleteOldShoppingList() {
         shoppingListService.deleteOldShoppingList2(Instant.now());
     }
-
-
 }
 
 

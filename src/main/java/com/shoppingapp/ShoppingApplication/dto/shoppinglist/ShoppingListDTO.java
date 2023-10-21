@@ -18,4 +18,6 @@ public class ShoppingListDTO {
 
     private List<ShoppingListCategoryDTO> categories;
 
+
+
 }
