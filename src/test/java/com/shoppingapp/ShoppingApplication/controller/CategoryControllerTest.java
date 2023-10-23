@@ -65,8 +65,7 @@ class CategoryControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
         //then
-        //List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<Category>>() {});
-        //lub:
+
         CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class);
         List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), collectionType);
         assertThat(receivedCategoryList).isNotNull();

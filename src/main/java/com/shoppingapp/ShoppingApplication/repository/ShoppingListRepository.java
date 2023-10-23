@@ -24,9 +24,6 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Inte
 
     void deleteAllByTimeOfLastEditingLessThan(Instant instant);
 
-//    @Modifying
-//    @Query(value = "DELETE FROM Shopping_List sl WHERE sl.time_act < :date", nativeQuery = true)
-//    int deleteOldShoppingList2(@Param("date")Instant date);
 
 
 }

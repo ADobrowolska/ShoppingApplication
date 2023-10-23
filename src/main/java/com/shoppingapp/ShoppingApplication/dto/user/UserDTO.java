@@ -1,10 +1,12 @@
 package com.shoppingapp.ShoppingApplication.dto.user;
 
 import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
 @Builder
+@Data
 public class UserDTO {
 
     private int id;

@@ -2,6 +2,7 @@ package com.shoppingapp.ShoppingApplication.model;
 
 import com.shoppingapp.ShoppingApplication.util.Role;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -12,12 +13,13 @@ public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @ManyToOne
+    @ToString.Exclude
     private User user;
 
 }

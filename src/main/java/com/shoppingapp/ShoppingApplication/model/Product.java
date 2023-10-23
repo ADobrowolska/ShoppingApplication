@@ -18,12 +18,8 @@ public class Product {
     private String name;
     private int quantity;
 
-//    @Column(name = "shopping_list_id", insertable = false, updatable = false)
-//    private Integer shoppingListId;
-
-//    @ToString.Exclude
+    @ToString.Exclude
     @ManyToOne
-//    @JsonBackReference
     private ShoppingList shoppingList;
 
     @ManyToOne
