@@ -1,11 +1,16 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
+import com.shoppingapp.ShoppingApplication.dto.user.CreateUserDTO;
 import com.shoppingapp.ShoppingApplication.dto.user.UserDTO;
 import com.shoppingapp.ShoppingApplication.dto.user.UserDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.User;
 import com.shoppingapp.ShoppingApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.management.InstanceAlreadyExistsException;
 
 @RestController
 public class UserController {
@@ -23,12 +28,17 @@ public class UserController {
     }
 
     @PostMapping("/users/")
-    public UserDTO addNewUser(@RequestBody UserDTO userDTO) {
-        User user = UserDTOMapper.mapUserDTOToUserModel(userDTO);
-        return UserDTOMapper.mapToUserDTO(userService.addUser(user));
+    public ResponseEntity<UserDTO> addNewUser(@RequestBody CreateUserDTO userDTO) {
+        try {
+            User user = UserDTOMapper.mapUserDTOToUserModel(userDTO);
+            UserDTO localUserDTO = UserDTOMapper.mapToUserDTO(userService.addUser(user));
+            return ResponseEntity.ok(localUserDTO);
+        } catch (InstanceAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
 
-
-
 }
+
+

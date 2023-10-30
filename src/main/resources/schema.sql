@@ -2,7 +2,7 @@ CREATE TABLE shopping_list (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(250) NOT NULL,
     time_act TIMESTAMP,
-    user_id INT
+    user_id INT NOT NULL
 );
 
 CREATE TABLE product (
@@ -28,7 +28,7 @@ CREATE TABLE application_user (
 CREATE TABLE user_role (
     id INT AUTO_INCREMENT PRIMARY KEY,
     role VARCHAR(250),
-    user_id INT
+    user_id INT NOT NULL
 );
 
 

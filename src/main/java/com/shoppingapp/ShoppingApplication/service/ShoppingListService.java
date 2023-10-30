@@ -1,30 +1,39 @@
 package com.shoppingapp.ShoppingApplication.service;
 
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
+import com.shoppingapp.ShoppingApplication.model.User;
 import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
 import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
+import com.shoppingapp.ShoppingApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ShoppingListService {
 
     private ShoppingListRepository shoppingListRepository;
     private ProductRepository productRepository;
+    private UserRepository userRepository;
 
 
     @Autowired
-    public ShoppingListService(ShoppingListRepository shoppingListRepository, ProductRepository productRepository) {
+    public ShoppingListService(ShoppingListRepository shoppingListRepository, ProductRepository productRepository, UserRepository userRepository) {
         this.shoppingListRepository = shoppingListRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
-    public ShoppingList getSingleShoppingList(int id) {
-        return shoppingListRepository.findById(id).orElseThrow();
+    public ShoppingList getSingleShoppingList(int id, int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("No such element exception!"));
+        return shoppingListRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new NoSuchElementException("No such element exception!"));
     }
 
     public List<ShoppingList> getShoppingLists() {
@@ -40,8 +49,10 @@ public class ShoppingListService {
         return editedSL;
     }
 
-    public ShoppingList addSL(ShoppingList shoppingList) {
+    public ShoppingList addSL(ShoppingList shoppingList, int userId) {
         shoppingList.setTimeOfLastEditing(Instant.now());
+        shoppingList.setUser(userRepository.findById(userId).orElseThrow());
+        shoppingList.setProducts(new ArrayList<>());
         return shoppingListRepository.save(shoppingList);
     }
 
@@ -53,23 +64,16 @@ public class ShoppingListService {
         shoppingListRepository.deleteAll();
     }
 
-//    @Transactional
-//    public void deleteOldShoppingList(Instant instant) {
-//        List<ShoppingList> shoppingLists = shoppingListRepository.findAllByTimeOfLastEditingLessThan(instant);
-//        shoppingLists.forEach(sl -> productRepository.deleteAllByShoppingList(sl));
-//        productRepository.flush();
-////        shoppingListRepository.deleteAll(shoppingLists);
-//        shoppingListRepository.deleteOldShoppingList(instant);
-//    }
-
     @Transactional
     public void deleteOldShoppingList2(Instant instant) {
         List<ShoppingList> shoppingLists = shoppingListRepository.findAllByTimeOfLastEditingLessThan(instant);
         shoppingListRepository.deleteAll(shoppingLists);
     }
 
-//    @Transactional
-//    public void deleteOldShoppingList3(Instant instant) {
-//        shoppingListRepository.deleteAllByTimeOfLastEditingLessThan(instant);
-//    }
+    public List<ShoppingList> getUserShoppingLists(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
+        return shoppingListRepository.findAllByUserId(userId);
+    }
+
 }

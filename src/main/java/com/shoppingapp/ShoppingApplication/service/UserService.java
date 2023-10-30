@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -28,10 +31,29 @@ public class UserService {
     }
 
     @Transactional
-    public User addUser(User user) {
-        User savedUser = userRepository.save(user);
-        UserRole userRole = userRoleService.addUserRole(savedUser, Role.USER);
-        savedUser.setUserRoles(new ArrayList<>(List.of(userRole)));
-        return userRepository.save(savedUser);
+    public User addUser(User user) throws InstanceAlreadyExistsException {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            if (validateEmail(user)) {
+                User savedUser = userRepository.save(user);
+                UserRole userRole = userRoleService.addUserRole(savedUser, Role.USER);
+                savedUser.setUserRoles(new ArrayList<>(List.of(userRole)));
+                return userRepository.save(savedUser);
+            } else {
+                throw new IllegalArgumentException("Invalid email address!");
+            }
+        } else {
+            throw new InstanceAlreadyExistsException("User already exists!");
+        }
     }
+
+
+    boolean validateEmail(User user) {
+        String regexPattern = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+        Pattern pattern = Pattern.compile(regexPattern);
+        Matcher matcher = pattern.matcher(user.getEmail());
+        return matcher.matches();
+    }
+
+
+
 }

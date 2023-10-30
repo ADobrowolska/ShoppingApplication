@@ -13,19 +13,14 @@ import java.util.stream.Collectors;
 
 public class ShoppingListDTOMapper {
 
-    public static ShoppingList mapDTOToShoppingListModel(ShoppingListDTO shoppingListDTO) {
+    public static ShoppingList mapDTOToShoppingListModel(CreateShoppingListDTO shoppingListDTO) {
         return ShoppingList.builder()
                 .id(shoppingListDTO.getId())
                 .name(shoppingListDTO.getName())
-                .timeOfLastEditing(shoppingListDTO.getTimeOfLastEditing())
-                .products(shoppingListDTO.getProducts() != null ? shoppingListDTO.getProducts().stream()
-                        .map(productDTO -> ProductDTOMapper.mapDTOToProductModel(productDTO))
-                        .toList()
-                        : new ArrayList<>())
                 .build();
     }
 
-    public static List<ShoppingList> mapDTOsToShoppingListModelList(List<ShoppingListDTO> shoppingListDTOList) {
+    public static List<ShoppingList> mapDTOsToShoppingListModelList(List<CreateShoppingListDTO> shoppingListDTOList) {
         return shoppingListDTOList.stream()
                 .map(shoppingListDTO -> mapDTOToShoppingListModel(shoppingListDTO))
                 .toList();
@@ -42,6 +37,7 @@ public class ShoppingListDTOMapper {
                 .id(shoppingList.getId())
                 .name(shoppingList.getName())
                 .timeOfLastEditing(shoppingList.getTimeOfLastEditing())
+                .userId(shoppingList.getUser().getId())
                 .products(shoppingList.getProducts() != null ? shoppingList.getProducts().stream()
                         .map(ProductDTOMapper::mapToProductDTO)
                         .toList()
@@ -52,6 +48,9 @@ public class ShoppingListDTOMapper {
 
     private static List<ShoppingListCategoryDTO> getCategories(List<Product> products) {
         Map<Category, List<Product>> productsGroupByCategoryMap = new HashMap<>();
+        if(products == null){
+            return null;
+        }
         for (Product product : products) {
             if (productsGroupByCategoryMap.containsKey(product.getCategory())) {
                 List<Product> existedListOfProducts = productsGroupByCategoryMap.get(product.getCategory());

@@ -1,5 +1,6 @@
 package com.shoppingapp.ShoppingApplication.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,10 +21,12 @@ public class User {
     private Integer id;
     private String firstName;
     private String lastName;
+    @Column(unique = true)
     private String email;
 
     @OneToMany
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private List<UserRole> userRoles;
 
 }

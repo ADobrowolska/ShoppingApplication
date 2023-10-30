@@ -1,7 +1,6 @@
 package com.shoppingapp.ShoppingApplication.dto.user;
 
 import com.shoppingapp.ShoppingApplication.model.User;
-import com.shoppingapp.ShoppingApplication.util.Role;
 
 import java.util.List;
 
@@ -26,9 +25,8 @@ public class UserDTOMapper {
                 .build();
     }
 
-    public static User mapUserDTOToUserModel(UserDTO userDTO) {
+    public static User mapUserDTOToUserModel(CreateUserDTO userDTO) {
         return User.builder()
-                .id(userDTO.getId())
                 .firstName(userDTO.getFirstName())
                 .lastName(userDTO.getLastName())
                 .email(userDTO.getEmail())
