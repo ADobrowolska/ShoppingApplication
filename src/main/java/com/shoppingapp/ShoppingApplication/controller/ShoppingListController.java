@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 public class ShoppingListController {
@@ -25,40 +24,36 @@ public class ShoppingListController {
 
     @GetMapping("/shopping/{id}")
     public ResponseEntity<ShoppingListDTO> getSingleShoppingList(@PathVariable int id, @RequestHeader(value = "user-id") int userId) {
-        try {
             ShoppingListDTO shoppingListDTO = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.getSingleShoppingList(id, userId));
             return ResponseEntity.ok(shoppingListDTO);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @GetMapping("/shopping")
-    public List<ShoppingListDTO> getShoppingLists() {
-        return ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getShoppingLists());
+    public ResponseEntity<List<ShoppingListDTO>> getShoppingLists() {
+        List<ShoppingListDTO> shoppingListDTOs = ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getShoppingLists());
+        return ResponseEntity.ok(shoppingListDTOs);
     }
 
     @GetMapping("/shopping/users/")
     public ResponseEntity<List<ShoppingListDTO>> getUserShoppingLists(@RequestHeader(value = "user-id") int userId) {
-        try {
             List<ShoppingListDTO> shoppingListDTOList =
                     ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getUserShoppingLists(userId));
             return ResponseEntity.ok(shoppingListDTOList);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
         }
-    }
+
 
     @PutMapping("/shopping/{id}")
-    public ShoppingListDTO editSL(@RequestBody CreateShoppingListDTO shoppingListDTO) {
+    public ResponseEntity<ShoppingListDTO> editSL(@RequestBody CreateShoppingListDTO shoppingListDTO) {
         ShoppingList shoppingList = ShoppingListDTOMapper.mapDTOToShoppingListModel(shoppingListDTO);
-        return ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.editSL(shoppingList));
+        ShoppingListDTO shoppingListDTO1 = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.editSL(shoppingList));
+        return ResponseEntity.ok(shoppingListDTO1);
     }
 
     @PostMapping(value = "/shopping")
-    public ShoppingListDTO addSL(@RequestBody CreateShoppingListDTO shoppingListDTO, @RequestHeader(value = "user-id") int userId) {
+    public ResponseEntity<ShoppingListDTO> addSL(@RequestBody CreateShoppingListDTO shoppingListDTO, @RequestHeader(value = "user-id") int userId) {
         ShoppingList shoppingList = ShoppingListDTOMapper.mapDTOToShoppingListModel(shoppingListDTO);
-        return ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.addSL(shoppingList, userId));
+        ShoppingListDTO shoppingListDTO1 = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.addSL(shoppingList, userId));
+        return ResponseEntity.ok(shoppingListDTO1);
     }
 
     @DeleteMapping("/shopping/{id}")
