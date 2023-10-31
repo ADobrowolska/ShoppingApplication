@@ -5,13 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.management.InstanceAlreadyExistsException;
+
 @SpringBootTest
 public class UserServiceTest {
     @Autowired
     private UserService service;
 
     @Test
-    void addUser() {
+    void addUser() throws InstanceAlreadyExistsException {
         User user = new User(
                 null,
                 "Anna",

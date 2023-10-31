@@ -43,7 +43,7 @@ public class ProductService {
 
     public List<Product> getProductsFromShoppingList(int shoppingListId) {
         ShoppingList shoppingList = shoppingListRepository.findById(shoppingListId)
-                .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!!!"));
+                .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
         return productRepository.findAllByShoppingListId(shoppingListId);
     }
 

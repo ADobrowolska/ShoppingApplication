@@ -163,7 +163,7 @@ class ShoppingListControllerTests {
         assertThat(shoppingList1.getName()).isEqualTo("Edited list");
     }
 
-    ;
+
 
     @Test
     void shouldRemoveShoppingListById() throws Exception {

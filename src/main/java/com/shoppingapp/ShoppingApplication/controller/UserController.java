@@ -28,14 +28,12 @@ public class UserController {
     }
 
     @PostMapping("/users/")
-    public ResponseEntity<UserDTO> addNewUser(@RequestBody CreateUserDTO userDTO) {
-        try {
-            User user = UserDTOMapper.mapUserDTOToUserModel(userDTO);
-            UserDTO localUserDTO = UserDTOMapper.mapToUserDTO(userService.addUser(user));
-            return ResponseEntity.ok(localUserDTO);
-        } catch (InstanceAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity<UserDTO> addNewUser(@RequestBody CreateUserDTO userDTO)
+            throws InstanceAlreadyExistsException {
+        User user = UserDTOMapper.mapUserDTOToUserModel(userDTO);
+        UserDTO localUserDTO = UserDTOMapper.mapToUserDTO(userService.addUser(user));
+        return ResponseEntity.ok(localUserDTO);
+
     }
 
 

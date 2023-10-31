@@ -32,7 +32,7 @@ public class UserService {
 
     @Transactional
     public User addUser(User user) throws InstanceAlreadyExistsException {
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
             if (validateEmail(user)) {
                 User savedUser = userRepository.save(user);
                 UserRole userRole = userRoleService.addUserRole(savedUser, Role.USER);
@@ -53,7 +53,6 @@ public class UserService {
         Matcher matcher = pattern.matcher(user.getEmail());
         return matcher.matches();
     }
-
 
 
 }
