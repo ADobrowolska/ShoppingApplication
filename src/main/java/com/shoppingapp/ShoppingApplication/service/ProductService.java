@@ -43,7 +43,7 @@ public class ProductService {
 
     public List<Product> getProductsFromShoppingList(int shoppingListId) {
         ShoppingList shoppingList = shoppingListRepository.findById(shoppingListId)
-                .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!!!"));
+                .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
         return productRepository.findAllByShoppingListId(shoppingListId);
     }
 
@@ -51,9 +51,6 @@ public class ProductService {
     public Product addProductToShoppingList(Product product, int shoppingListId) {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         shoppingList.setTimeOfLastEditing(Instant.now());
-//        if (product.getQuantity() < 1) {
-//            throw new IllegalArgumentException();
-//        }
         Product savedProduct = productRepository.save(product);
         getProductsFromShoppingList(shoppingListId).add(savedProduct);
         return savedProduct;

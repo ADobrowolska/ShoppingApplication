@@ -1,6 +1,5 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.shoppingapp.ShoppingApplication.model.Category;
@@ -65,8 +64,7 @@ class CategoryControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
         //then
-        //List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<Category>>() {});
-        //lub:
+
         CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class);
         List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), collectionType);
         assertThat(receivedCategoryList).isNotNull();

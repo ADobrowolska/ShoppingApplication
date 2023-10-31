@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, Integer> {
@@ -24,9 +25,9 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Inte
 
     void deleteAllByTimeOfLastEditingLessThan(Instant instant);
 
-//    @Modifying
-//    @Query(value = "DELETE FROM Shopping_List sl WHERE sl.time_act < :date", nativeQuery = true)
-//    int deleteOldShoppingList2(@Param("date")Instant date);
+    List<ShoppingList> findAllByUserId(int userId);
+
+    Optional<ShoppingList> findByIdAndUserId(int id, int userId);
 
 
 }

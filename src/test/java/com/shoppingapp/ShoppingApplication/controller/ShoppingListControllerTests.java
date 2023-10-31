@@ -64,8 +64,8 @@ class ShoppingListControllerTests {
         ShoppingList newShoppingList = new ShoppingList();
         newShoppingList.setName("List1");
         newShoppingList = shoppingListRepository.save(newShoppingList);
-        Product product1 = createProduct(newShoppingList,"Bułka");
-        Product product2 = createProduct(newShoppingList,"Chałka");
+        Product product1 = createProduct(newShoppingList, "Bułka");
+        Product product2 = createProduct(newShoppingList, "Chałka");
         List<Product> productList = new ArrayList<>();
         productList.add(product1);
         productList.add(product2);
@@ -133,10 +133,10 @@ class ShoppingListControllerTests {
         shoppingList.setName("Dodana lista");
         //when
         MvcResult mvcResult = mockMvc.perform(
-                MockMvcRequestBuilders.post("/shopping")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(shoppingList))
-                        .accept(MediaType.APPLICATION_JSON))
+                        MockMvcRequestBuilders.post("/shopping")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(shoppingList))
+                                .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
@@ -154,14 +154,16 @@ class ShoppingListControllerTests {
         //when
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + shoppingList.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ShoppingList(shoppingList.getId(), "Edited list", null, null))))
+                        .content(objectMapper.writeValueAsString(new ShoppingList(shoppingList.getId(), "Edited list", null, null, null))))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
         //then
         ShoppingList shoppingList1 = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ShoppingList.class);
         assertThat(shoppingList1.getName()).isEqualTo("Edited list");
-    };
+    }
+
+
 
     @Test
     void shouldRemoveShoppingListById() throws Exception {
@@ -192,9 +194,4 @@ class ShoppingListControllerTests {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
     }
-
-
-
-
-
 }

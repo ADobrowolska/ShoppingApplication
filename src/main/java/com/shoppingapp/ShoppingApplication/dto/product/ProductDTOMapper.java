@@ -18,7 +18,7 @@ public class ProductDTOMapper {
                 .id(product.getId())
                 .name(product.getName())
                 .quantity(product.getQuantity())
-                .categoryName(product.getCategory().getName())
+                .categoryName(product.getCategory() == null? null : product.getCategory().getName())
                 .build();
     }
 
