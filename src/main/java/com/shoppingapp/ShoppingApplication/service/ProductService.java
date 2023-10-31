@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
+import javax.management.InstanceAlreadyExistsException;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -48,20 +46,25 @@ public class ProductService {
     }
 
 
-    public Product addProductToShoppingList(Product product, int shoppingListId) {
+    public Product addProductToShoppingList(Product product, int shoppingListId) throws InstanceAlreadyExistsException {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
-        shoppingList.setTimeOfLastEditing(Instant.now());
-        Product savedProduct = productRepository.save(product);
-        getProductsFromShoppingList(shoppingListId).add(savedProduct);
-        return savedProduct;
+        if (!productRepository.existsByName(product.getName())) {
+            shoppingList.setTimeOfLastEditing(Instant.now());
+            Product savedProduct = productRepository.save(product);
+            getProductsFromShoppingList(shoppingListId).add(savedProduct);
+            return savedProduct;
+        } else {
+            throw new InstanceAlreadyExistsException("Product is on the list");
+        }
+
     }
 
     @Transactional
     public Product editProduct(int shoppingListId, Product product) {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         Product editedProduct = shoppingList.getProducts().stream()
-                        .filter(product1 -> product1.getId() == product.getId())
-                                .findFirst().orElseThrow();
+                .filter(product1 -> product1.getId() == product.getId())
+                .findFirst().orElseThrow();
         editedProduct.setName(product.getName());
         editedProduct.setQuantity(product.getQuantity());
         return editedProduct;
@@ -75,7 +78,6 @@ public class ProductService {
                 .orElseThrow();
         productRepository.deleteById(deletedProduct.getId());
     }
-
 
 
 }
