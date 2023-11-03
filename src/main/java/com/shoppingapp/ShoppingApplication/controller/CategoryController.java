@@ -4,6 +4,7 @@ import com.shoppingapp.ShoppingApplication.dto.category.CategoryDTO;
 import com.shoppingapp.ShoppingApplication.dto.category.CategoryDTOMapper;
 import com.shoppingapp.ShoppingApplication.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,13 +22,15 @@ public class CategoryController {
     }
 
     @GetMapping("/shopping/category/x")
-    public List<CategoryDTO> getAllCategories() {
-        return CategoryDTOMapper.mapToCategoryDTOs(categoryService.getAllCategories());
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
+        List<CategoryDTO> categoryDTOs = CategoryDTOMapper.mapToCategoryDTOs(categoryService.getAllCategories());
+        return ResponseEntity.ok(categoryDTOs);
     }
 
     @GetMapping(value = "/shopping/category", params = "searchBy")
-    public List<CategoryDTO> getCategories(@RequestParam String searchBy) {
-        return CategoryDTOMapper.mapToCategoryDTOs(categoryService.getCategoriesByParam(searchBy));
+    public ResponseEntity<List<CategoryDTO>> getCategories(@RequestParam String searchBy) {
+        List<CategoryDTO> categoryDTOs = CategoryDTOMapper.mapToCategoryDTOs(categoryService.getCategoriesByParam(searchBy));
+        return ResponseEntity.ok(categoryDTOs);
     }
 
 

@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 public class ProductController {
@@ -23,35 +23,29 @@ public class ProductController {
 
 
     @GetMapping("/shopping/{shoppingListId}/products/{id}")
-    public ProductDTO getSingleProduct(@PathVariable int id, @PathVariable int shoppingListId) {
-        return ProductDTOMapper.mapToProductDTO(productService.getSingleProduct(id, shoppingListId));
+    public ResponseEntity<ProductDTO> getSingleProduct(@PathVariable int id, @PathVariable int shoppingListId) {
+        ProductDTO productDTO = ProductDTOMapper.mapToProductDTO(productService.getSingleProduct(id, shoppingListId));
+        return ResponseEntity.ok(productDTO);
     }
 
     @GetMapping("/shopping/{shoppingListId}/products")
-    public List<ProductDTO> getProductsOnShoppingList(@PathVariable int shoppingListId) {
-        return ProductDTOMapper.mapToProductDTOs(productService.getProductsFromShoppingList(shoppingListId));
-    }
-
-    @GetMapping(value = "/shopping/products2", params = {"shoppingListId"})
-    public ResponseEntity<List<ProductDTO>> getProductsOnShoppingList2(@RequestParam int shoppingListId) {
-        try {
-            List<ProductDTO> productDTOList =
-                    ProductDTOMapper.mapToProductDTOs(productService.getProductsFromShoppingList(shoppingListId));
-            return ResponseEntity.ok(productDTOList);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<ProductDTO>> getProductsOnShoppingList(@PathVariable int shoppingListId) {
+        List<ProductDTO> productDTOList = ProductDTOMapper.mapToProductDTOs(productService.getProductsFromShoppingList(shoppingListId));
+        return ResponseEntity.ok(productDTOList);
     }
 
     @PostMapping("/shopping/{shoppingListId}/products")
-    public ProductDTO addProductToShoppingList(@RequestBody Product product, @PathVariable int shoppingListId) {
-        return ProductDTOMapper.mapToProductDTO(productService.addProductToShoppingList(product, shoppingListId));
+    public ResponseEntity<ProductDTO> addProductToShoppingList(@RequestBody ProductDTO productDTO, @PathVariable int shoppingListId) throws InstanceAlreadyExistsException {
+        Product product = ProductDTOMapper.mapDTOToProductModel(productDTO);
+        ProductDTO productDTO1 = ProductDTOMapper.mapToProductDTO(productService.addProductToShoppingList(product, shoppingListId));
+        return ResponseEntity.ok(productDTO1);
     }
 
-//    record ProductRequestDTO (Integer id, String name, Integer categoryId, int quantity, Integer shoppingListId){}
     @PutMapping("/shopping/{shoppingListId}/products")
-    public ProductDTO editProduct(@PathVariable int shoppingListId, @RequestBody Product product) {
-        return ProductDTOMapper.mapToProductDTO(productService.editProduct(shoppingListId, product));
+    public ResponseEntity<ProductDTO> editProduct(@PathVariable int shoppingListId, @RequestBody ProductDTO productDTO) {
+        Product product = ProductDTOMapper.mapDTOToProductModel(productDTO);
+        ProductDTO productDTO1 = ProductDTOMapper.mapToProductDTO(productService.editProduct(shoppingListId, product));
+        return ResponseEntity.ok(productDTO1);
     }
 
     @DeleteMapping("/shopping/{shoppingListId}/products/{id}")
