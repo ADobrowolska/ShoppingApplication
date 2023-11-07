@@ -5,6 +5,7 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -31,7 +32,7 @@ public class ShoppingList {
     @Column(name = "time_act")
     private Instant timeOfLastEditing;
 
-    @OneToMany(cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "shopping_list_id")
     @JsonManagedReference
     private List<Product> products;
@@ -39,6 +40,7 @@ public class ShoppingList {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull
+    @ToString.Exclude
     private User user;
 
 }

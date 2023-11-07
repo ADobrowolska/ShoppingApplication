@@ -5,10 +5,13 @@ import com.shoppingapp.ShoppingApplication.dto.product.ProductDTO;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
+import com.shoppingapp.ShoppingApplication.model.User;
 import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
 import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
 import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
+import com.shoppingapp.ShoppingApplication.repository.UserRepository;
 import com.shoppingapp.ShoppingApplication.service.ProductService;
+import com.shoppingapp.ShoppingApplication.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +52,10 @@ class ProductControllerTest {
     @Autowired
     private ShoppingListRepository shoppingListRepository;
 
+    @Autowired
+    private UserService userService;
+
+
     Category category1;
     Category category2;
 
@@ -60,15 +68,24 @@ class ProductControllerTest {
         category2 = createCategory("Nabial");
     }
 
-    protected ShoppingList createShoppingList() {
+    protected ShoppingList createShoppingList() throws InstanceAlreadyExistsException {
         ShoppingList shoppingList = new ShoppingList();
         shoppingList.setName("Lista zakupowa 1");
+        shoppingList.setUser(createUser());
         shoppingListRepository.save(shoppingList);
         Product product1 = createProduct(shoppingList, category1, "Chleb");
         Product product2 = createProduct(shoppingList, category1, "Bagietka");
         Product product3 = createProduct(shoppingList, category2, "Serek topiony");
         shoppingList.setProducts(List.of(product1, product2, product3));
         return shoppingListRepository.findById(shoppingList.getId()).orElseThrow();
+    }
+
+    protected User createUser() throws InstanceAlreadyExistsException {
+        User user = new User();
+        user.setFirstName("Anna");
+        user.setLastName("Nowak");
+        user.setEmail("an@x.com");
+        return userService.addUser(user);
     }
 
     protected Category createCategory(String name) {
