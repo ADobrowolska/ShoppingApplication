@@ -6,10 +6,8 @@ import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
 import com.shoppingapp.ShoppingApplication.model.User;
-import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
-import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
-import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
-import com.shoppingapp.ShoppingApplication.repository.UserRepository;
+import com.shoppingapp.ShoppingApplication.repository.*;
+import com.shoppingapp.ShoppingApplication.service.CategoryService;
 import com.shoppingapp.ShoppingApplication.service.ShoppingListService;
 import com.shoppingapp.ShoppingApplication.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -57,7 +56,13 @@ class ShoppingListControllerTests {
     private UserRepository userRepository;
 
     @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     Category category;
 
@@ -65,8 +70,9 @@ class ShoppingListControllerTests {
     void setUp() {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
-        userRepository.deleteAll();
         shoppingListRepository.deleteAll();
+        userRoleRepository.deleteAll();
+        userRepository.deleteAll();
         Category category = new Category();
         category.setName("Pieczywo");
         this.category = categoryRepository.save(category);
@@ -76,14 +82,14 @@ class ShoppingListControllerTests {
         ShoppingList newShoppingList = new ShoppingList();
         newShoppingList.setName("List1");
         newShoppingList.setUser(createUser());
-        newShoppingList = shoppingListRepository.save(newShoppingList);
+
         Product product1 = createProduct(newShoppingList, "Bułka");
         Product product2 = createProduct(newShoppingList, "Chałka");
         List<Product> productList = new ArrayList<>();
         productList.add(product1);
         productList.add(product2);
         newShoppingList.setProducts(productList);
-        return shoppingListRepository.findById(newShoppingList.getId()).orElseThrow();
+        return shoppingListRepository.save(newShoppingList);
     }
 
     protected User createUser() throws InstanceAlreadyExistsException {
@@ -99,7 +105,6 @@ class ShoppingListControllerTests {
         product.setShoppingList(shoppingList);
         product.setName(name);
         product.setCategory(category);
-        productRepository.save(product);
         return product;
     }
 
