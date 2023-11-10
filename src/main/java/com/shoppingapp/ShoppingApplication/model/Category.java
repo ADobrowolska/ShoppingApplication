@@ -16,5 +16,10 @@ public class Category {
     private int id;
     private String name;
 
+    public static Category ofId(Integer id){
+        Category category = new Category();
+        category.setId(id);
+        return category;
+    }
 
 }

@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,5 +43,14 @@ public class ShoppingList {
     @NotNull
     @ToString.Exclude
     private User user;
+
+    public void addProduct(Product product) {
+        if (products == null) {
+            products = new ArrayList<>();
+        }
+        products.add(product);
+        product.setShoppingList(this);
+    }
+
 
 }
