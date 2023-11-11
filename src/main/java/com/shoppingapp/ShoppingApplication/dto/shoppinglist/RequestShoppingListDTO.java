@@ -1,13 +1,14 @@
 package com.shoppingapp.ShoppingApplication.dto.shoppinglist;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
-public class CreateShoppingListDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RequestShoppingListDTO {
 
-    private Integer id;
     private String name;
 
 }

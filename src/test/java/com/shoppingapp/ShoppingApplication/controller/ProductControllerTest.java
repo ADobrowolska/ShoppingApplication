@@ -229,9 +229,9 @@ class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
 
-        List<ProductDTO> products = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), new TypeReference<List<ProductDTO>>(){});
+        List<ProductDTO> products = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), new TypeReference<List<ProductDTO>>() {
+        });
         assertThat(products.stream()
                 .noneMatch(productDTO -> productDTO.getId() == product.getId())).isTrue();
-
     }
 }

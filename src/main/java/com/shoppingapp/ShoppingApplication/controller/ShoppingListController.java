@@ -1,6 +1,6 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
-import com.shoppingapp.ShoppingApplication.dto.shoppinglist.CreateShoppingListDTO;
+import com.shoppingapp.ShoppingApplication.dto.shoppinglist.RequestShoppingListDTO;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTO;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
@@ -24,51 +24,51 @@ public class ShoppingListController {
 
     @GetMapping("/shopping/{id}")
     public ResponseEntity<ShoppingListDTO> getSingleShoppingList(@PathVariable int id, @RequestHeader(value = "user-id") int userId) {
-            ShoppingListDTO shoppingListDTO = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.getSingleShoppingList(id, userId));
-            return ResponseEntity.ok(shoppingListDTO);
+        ShoppingListDTO shoppingListDTO = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.getSingleShoppingList(id, userId));
+        return ResponseEntity.ok(shoppingListDTO);
     }
 
     @GetMapping("/shopping")
-    public ResponseEntity<List<ShoppingListDTO>> getShoppingLists() {
-        List<ShoppingListDTO> shoppingListDTOs = ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getShoppingLists());
+    public ResponseEntity<List<ShoppingListDTO>> getShoppingLists(@RequestHeader("user-id") int userId) {
+        List<ShoppingListDTO> shoppingListDTOs = ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getShoppingLists(userId));
         return ResponseEntity.ok(shoppingListDTOs);
     }
 
     @GetMapping("/shopping/users/")
     public ResponseEntity<List<ShoppingListDTO>> getUserShoppingLists(@RequestHeader(value = "user-id") int userId) {
-            List<ShoppingListDTO> shoppingListDTOList =
-                    ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getUserShoppingLists(userId));
-            return ResponseEntity.ok(shoppingListDTOList);
-        }
+        List<ShoppingListDTO> shoppingListDTOList =
+                ShoppingListDTOMapper.mapToShoppingListDTOs(shoppingListService.getUserShoppingLists(userId));
+        return ResponseEntity.ok(shoppingListDTOList);
+    }
 
 
     @PutMapping("/shopping/{id}")
-    public ResponseEntity<ShoppingListDTO> editSL(@RequestBody CreateShoppingListDTO shoppingListDTO) {
+    public ResponseEntity<ShoppingListDTO> editSL(@PathVariable int id, @RequestBody RequestShoppingListDTO shoppingListDTO, @RequestHeader(value = "user-id") int userId) {
         ShoppingList shoppingList = ShoppingListDTOMapper.mapDTOToShoppingListModel(shoppingListDTO);
-        ShoppingListDTO shoppingListDTO1 = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.editSL(shoppingList));
-        return ResponseEntity.ok(shoppingListDTO1);
+        ShoppingListDTO receivedShoppingListDTO = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.editSL(id, shoppingList, userId));
+        return ResponseEntity.ok(receivedShoppingListDTO);
     }
 
     @PostMapping(value = "/shopping")
-    public ResponseEntity<ShoppingListDTO> addSL(@RequestBody CreateShoppingListDTO shoppingListDTO, @RequestHeader(value = "user-id") int userId) {
+    public ResponseEntity<ShoppingListDTO> addSL(@RequestBody RequestShoppingListDTO shoppingListDTO, @RequestHeader(value = "user-id") int userId) {
         ShoppingList shoppingList = ShoppingListDTOMapper.mapDTOToShoppingListModel(shoppingListDTO);
-        ShoppingListDTO shoppingListDTO1 = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.addSL(shoppingList, userId));
-        return ResponseEntity.ok(shoppingListDTO1);
+        ShoppingListDTO receivedShoppingListDTO = ShoppingListDTOMapper.mapToShoppingListDTO(shoppingListService.addSL(shoppingList, userId));
+        return ResponseEntity.ok(receivedShoppingListDTO);
     }
 
     @DeleteMapping("/shopping/{id}")
-    public void deleteSLById(@PathVariable int id) {
-        shoppingListService.deleteSLById(id);
+    public void deleteSLById(@PathVariable int id, @RequestHeader(value = "user-id") int userId) {
+        shoppingListService.deleteSLById(id, userId);
     }
 
     @DeleteMapping("/shopping")
-    public void deleteAllSLs() {
-        shoppingListService.deleteAllSLs();
+    public void deleteAllSLs(@RequestHeader("user-id") int userId) {
+        shoppingListService.deleteAllSLs(userId);
     }
 
     @DeleteMapping("/shopping/old")
-    public void deleteOldShoppingList() {
-        shoppingListService.deleteOldShoppingList2(Instant.now());
+    public void deleteOldShoppingList(@RequestHeader("user-id") int userId) {
+        shoppingListService.deleteOldShoppingList(Instant.now(), userId);
     }
 }
 

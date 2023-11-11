@@ -6,7 +6,6 @@ import com.shoppingapp.ShoppingApplication.dto.user.UserDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.User;
 import com.shoppingapp.ShoppingApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -23,6 +23,8 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Inte
 
     List<ShoppingList> findAllByTimeOfLastEditingLessThan(Instant instant);
 
+    List<ShoppingList> findAllByTimeOfLastEditingLessThanAndUserId(Instant instant, int userId);
+
     void deleteAllByTimeOfLastEditingLessThan(Instant instant);
 
     List<ShoppingList> findAllByUserId(int userId);
