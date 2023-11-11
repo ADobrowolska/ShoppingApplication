@@ -10,7 +10,7 @@ CREATE TABLE product (
     name VARCHAR(250) NOT NULL,
     quantity INT NOT NULL,
     shopping_list_id INT,
-    category_id INT
+    category_id INT NOT NULL
 );
 
 CREATE TABLE category (

@@ -2,6 +2,7 @@ package com.shoppingapp.ShoppingApplication.service;
 
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
+import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
 import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
 import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,15 @@ public class ProductService {
 
     private ProductRepository productRepository;
     private ShoppingListRepository shoppingListRepository;
+    private CategoryRepository categoryRepository;
+
 
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ShoppingListRepository shoppingListRepository) {
+    public ProductService(ProductRepository productRepository, ShoppingListRepository shoppingListRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.shoppingListRepository = shoppingListRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     private ShoppingList findingShoppingListById(int shoppingListId) {
@@ -50,9 +54,9 @@ public class ProductService {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         if (!productRepository.existsByName(product.getName())) {
             shoppingList.setTimeOfLastEditing(Instant.now());
-            Product savedProduct = productRepository.save(product);
-            getProductsFromShoppingList(shoppingListId).add(savedProduct);
-            return savedProduct;
+            product.setCategory(categoryRepository.findById(product.getCategory().getId()).orElseThrow());
+            shoppingList.addProduct(product);
+            return productRepository.save(product);
         } else {
             throw new InstanceAlreadyExistsException("Product is on the list");
         }
@@ -76,6 +80,7 @@ public class ProductService {
                 .filter(prod -> prod.getId() == id)
                 .findFirst()
                 .orElseThrow();
+        shoppingList.getProducts().remove(deletedProduct);
         productRepository.deleteById(deletedProduct.getId());
     }
 

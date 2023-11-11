@@ -1,15 +1,14 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shoppingapp.ShoppingApplication.dto.product.ProductDTO;
+import com.shoppingapp.ShoppingApplication.dto.product.ProductDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
 import com.shoppingapp.ShoppingApplication.model.User;
-import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
-import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
-import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
-import com.shoppingapp.ShoppingApplication.repository.UserRepository;
+import com.shoppingapp.ShoppingApplication.repository.*;
 import com.shoppingapp.ShoppingApplication.service.ProductService;
 import com.shoppingapp.ShoppingApplication.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +54,12 @@ class ProductControllerTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
 
     Category category1;
     Category category2;
@@ -64,6 +69,8 @@ class ProductControllerTest {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         shoppingListRepository.deleteAll();
+        userRoleRepository.deleteAll();
+        userRepository.deleteAll();
         category1 = createCategory("Pieczywo");
         category2 = createCategory("Nabial");
     }
@@ -77,7 +84,7 @@ class ProductControllerTest {
         Product product2 = createProduct(shoppingList, category1, "Bagietka");
         Product product3 = createProduct(shoppingList, category2, "Serek topiony");
         shoppingList.setProducts(List.of(product1, product2, product3));
-        return shoppingListRepository.findById(shoppingList.getId()).orElseThrow();
+        return shoppingListRepository.save(shoppingList);
     }
 
     protected User createUser() throws InstanceAlreadyExistsException {
@@ -107,26 +114,24 @@ class ProductControllerTest {
 
     @Test
     void shouldGetSingleProduct() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
         Product product = shoppingList.getProducts().get(0);
-        //when
+
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + product.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
+
         ProductDTO newProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
         assertThat(newProduct.getId()).isEqualTo(product.getId());
         assertThat(newProduct.getName()).isEqualTo(product.getName());
-        assertThat(newProduct.getCategoryName()).isEqualTo(product.getCategory().getName());
+        assertThat(newProduct.getCategoryId()).isEqualTo(product.getCategory().getId());
     }
 
     @Test
     void shouldGetSingleProduct_NotFound() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
-        //when
+
         mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/-1"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(404));
@@ -134,54 +139,32 @@ class ProductControllerTest {
 
     @Test
     void shouldGetProductsOnShoppingList() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
         List<Product> products = shoppingList.getProducts();
-        //when
+
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
+
         List<ProductDTO> newProducts = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
         assertThat(newProducts).isNotNull();
         assertThat(newProducts.size()).isEqualTo(products.size());
-//        assertThat(newProducts.get(0).getName()).isEqualTo(products.get(0).getName());
+
     }
 
     @Test
     void shouldAddProductToShoppingListExistedCategory() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
-        Product newProduct = new Product();
-        newProduct.setName("Jogurt");
-        newProduct.setCategory(category2);
-        //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/shopping/" + shoppingList.getId() + "/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newProduct))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().is(200))
-                .andReturn();
-        //then
-        ProductDTO receivedProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
-        assertThat(receivedProduct).isNotNull();
-        assertThat(receivedProduct.getName()).isEqualTo(newProduct.getName());
-        assertThat(receivedProduct.getCategoryName()).isEqualTo(newProduct.getCategory().getName());
-    }
-
-    @Test
-    void shouldAddProductToShoppingListNonExistentCategory() throws Exception {
-        //given
-        ShoppingList shoppingList = createShoppingList();
-        Product newProduct = new Product();
-        newProduct.setName("Jablko");
         Category category3 = new Category();
         category3.setName("Owoce");
         categoryRepository.save(category3);
-        newProduct.setCategory(category3);
-        //when
+        ProductDTO newProduct = ProductDTO.builder()
+                .name("Jablko")
+                .quantity(1)
+                .categoryId(category2.getId())
+                .build();
+
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/shopping/" + shoppingList.getId() + "/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newProduct))
@@ -189,44 +172,66 @@ class ProductControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
+
         ProductDTO receivedProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
-        assertThat(receivedProduct).isNotNull();
-        assertThat(receivedProduct.getName()).isEqualTo(newProduct.getName());
+
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + receivedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andReturn();
+        ProductDTO fetchedProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
+        assertThat(fetchedProduct.getCategoryId()).isEqualTo(newProduct.getCategoryId());
+        assertThat(fetchedProduct.getName()).isEqualTo(newProduct.getName());
     }
 
     @Test
     void shouldEditProduct() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
-        Product toEdit = shoppingList.getProducts().get(0);
-        toEdit.setName("Grahamka");
-        toEdit.setCategory(category1);
+        ProductDTO productToEdit = ProductDTOMapper.mapToProductDTO(shoppingList.getProducts().get(0));
+        productToEdit.setName("Grahamka");
+        productToEdit.setQuantity(4);
+        productToEdit.setCategoryId(category1.getId());
 
-//        Product toEdit2 = new Product();
-//        toEdit2.setId(toEdit.getId());
-//        toEdit2.setName("Grahamka");
-//        toEdit2.setCategory(category1);
-        //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + shoppingList.getId() + "/products")
+        MvcResult putMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + shoppingList.getId() + "/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(toEdit)))
+                        .content(objectMapper.writeValueAsString(productToEdit)))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
-        ProductDTO receivedProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
-        assertThat(receivedProduct.getName()).isEqualTo(toEdit.getName());
+
+        ProductDTO receivedProduct = objectMapper.readValue(putMvcResult.getResponse().getContentAsString(), ProductDTO.class);
+
+        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + receivedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        ProductDTO fetchedProduct = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), ProductDTO.class);
+        assertThat(fetchedProduct.getName()).isEqualTo(productToEdit.getName());
+        assertThat(fetchedProduct.getCategoryId()).isEqualTo(productToEdit.getCategoryId());
     }
 
     @Test
     void shouldRemoveProduct() throws Exception {
-        //given
         ShoppingList shoppingList = createShoppingList();
         Product product = shoppingList.getProducts().get(0);
-        //when
+
+
         mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/" + shoppingList.getId() + "/products/" + product.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
+
+        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId()))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andReturn();
+
+        List<ProductDTO> products = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), new TypeReference<List<ProductDTO>>(){});
+        assertThat(products.stream()
+                .noneMatch(productDTO -> productDTO.getId() == product.getId())).isTrue();
+
     }
 }

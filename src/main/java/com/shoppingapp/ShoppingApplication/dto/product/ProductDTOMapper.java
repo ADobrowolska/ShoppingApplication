@@ -1,5 +1,6 @@
 package com.shoppingapp.ShoppingApplication.dto.product;
 
+import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ProductDTOMapper {
                 .id(product.getId())
                 .name(product.getName())
                 .quantity(product.getQuantity())
-                .categoryName(product.getCategory() == null? null : product.getCategory().getName())
+                .categoryId(product.getCategory().getId())
                 .build();
     }
 
@@ -27,6 +28,7 @@ public class ProductDTOMapper {
                 .id(productDTO.getId())
                 .name(productDTO.getName())
                 .quantity(productDTO.getQuantity())
+                .category(Category.ofId(productDTO.getCategoryId()))
                 .build();
     }
 

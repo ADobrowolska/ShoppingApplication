@@ -37,15 +37,15 @@ public class ProductController {
     @PostMapping("/shopping/{shoppingListId}/products")
     public ResponseEntity<ProductDTO> addProductToShoppingList(@RequestBody ProductDTO productDTO, @PathVariable int shoppingListId) throws InstanceAlreadyExistsException {
         Product product = ProductDTOMapper.mapDTOToProductModel(productDTO);
-        ProductDTO productDTO1 = ProductDTOMapper.mapToProductDTO(productService.addProductToShoppingList(product, shoppingListId));
-        return ResponseEntity.ok(productDTO1);
+        ProductDTO savedProductDTO = ProductDTOMapper.mapToProductDTO(productService.addProductToShoppingList(product, shoppingListId));
+        return ResponseEntity.ok(savedProductDTO);
     }
 
     @PutMapping("/shopping/{shoppingListId}/products")
     public ResponseEntity<ProductDTO> editProduct(@PathVariable int shoppingListId, @RequestBody ProductDTO productDTO) {
         Product product = ProductDTOMapper.mapDTOToProductModel(productDTO);
-        ProductDTO productDTO1 = ProductDTOMapper.mapToProductDTO(productService.editProduct(shoppingListId, product));
-        return ResponseEntity.ok(productDTO1);
+        ProductDTO editedProductDTO = ProductDTOMapper.mapToProductDTO(productService.editProduct(shoppingListId, product));
+        return ResponseEntity.ok(editedProductDTO);
     }
 
     @DeleteMapping("/shopping/{shoppingListId}/products/{id}")

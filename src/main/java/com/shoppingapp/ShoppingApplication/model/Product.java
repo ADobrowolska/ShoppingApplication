@@ -1,6 +1,6 @@
 package com.shoppingapp.ShoppingApplication.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +22,7 @@ public class Product {
     @ManyToOne
     private ShoppingList shoppingList;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
