@@ -36,17 +36,18 @@ public class ShoppingListService {
                 .orElseThrow(() -> new NoSuchElementException("No such element exception!"));
     }
 
-    public List<ShoppingList> getShoppingLists() {
-        return shoppingListRepository.findAll();
+    public List<ShoppingList> getShoppingLists(int userId) {
+        return shoppingListRepository.findAllByUserId(userId);
     }
 
 
     @Transactional
-    public ShoppingList editSL(ShoppingList shoppingList) {
-        ShoppingList editedSL = shoppingListRepository.findById(shoppingList.getId()).orElseThrow();
+    public ShoppingList editSL(Integer id, ShoppingList shoppingList, int userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        ShoppingList editedSL = shoppingListRepository.findByIdAndUserId(id, userId).orElseThrow();
         editedSL.setName(shoppingList.getName());
         editedSL.setTimeOfLastEditing(Instant.now());
-        return editedSL;
+        return shoppingListRepository.save(editedSL);
     }
 
     public ShoppingList addSL(ShoppingList shoppingList, int userId) {
@@ -56,22 +57,24 @@ public class ShoppingListService {
         return shoppingListRepository.save(shoppingList);
     }
 
-    public void deleteSLById(int id) {
-        shoppingListRepository.deleteById(id);
+    public void deleteSLById(int id, int userId) {
+        ShoppingList shoppingListToRemove = shoppingListRepository.findByIdAndUserId(id, userId).orElseThrow();
+        shoppingListRepository.deleteById(shoppingListToRemove.getId());
     }
 
-    public void deleteAllSLs() {
-        shoppingListRepository.deleteAll();
+    public void deleteAllSLs(int userId) {
+        List<ShoppingList> allByUserId = shoppingListRepository.findAllByUserId(userId);
+        shoppingListRepository.deleteAll(allByUserId);
     }
 
     @Transactional
-    public void deleteOldShoppingList2(Instant instant) {
-        List<ShoppingList> shoppingLists = shoppingListRepository.findAllByTimeOfLastEditingLessThan(instant);
+    public void deleteOldShoppingList(Instant instant, int userId) {
+        List<ShoppingList> shoppingLists = shoppingListRepository.findAllByTimeOfLastEditingLessThanAndUserId(instant, userId);
         shoppingListRepository.deleteAll(shoppingLists);
     }
 
     public List<ShoppingList> getUserShoppingLists(int userId) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
         return shoppingListRepository.findAllByUserId(userId);
     }

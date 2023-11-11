@@ -1,7 +1,10 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shoppingapp.ShoppingApplication.dto.shoppinglist.RequestShoppingListDTO;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTO;
+import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTOMapper;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
@@ -17,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.management.InstanceAlreadyExistsException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +85,7 @@ class ShoppingListControllerTests {
         ShoppingList newShoppingList = new ShoppingList();
         newShoppingList.setName("List1");
         newShoppingList.setUser(createUser());
+        newShoppingList.setTimeOfLastEditing(Instant.parse("2022-11-11T15:55:33.061971700Z"));
 
         Product product1 = createProduct(newShoppingList, "Bułka");
         Product product2 = createProduct(newShoppingList, "Chałka");
@@ -115,7 +119,8 @@ class ShoppingListControllerTests {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("user-id", String.valueOf(newShoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + newShoppingList.getId()).headers(httpHeaders))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + newShoppingList.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
@@ -143,14 +148,18 @@ class ShoppingListControllerTests {
     @Test
     void shouldGetShoppingLists() throws Exception {
         ShoppingList newShoppingList = createShoppingList();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(newShoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping"))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping")
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
 
-        List<ShoppingListDTO> shoppingListDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
-        assertThat(shoppingListDTOs).isNotNull();
+        List<ShoppingListDTO> shoppingListDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<ShoppingListDTO>>() {
+        });
+        assertThat(shoppingListDTOs).isNotEmpty();
         assertThat(shoppingListDTOs.size()).isEqualTo(1);
     }
 
@@ -163,7 +172,7 @@ class ShoppingListControllerTests {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("user-id", String.valueOf(newShoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(
+        MvcResult postMvcResult = mockMvc.perform(
                         MockMvcRequestBuilders.post("/shopping")
                                 .headers(httpHeaders)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -172,53 +181,105 @@ class ShoppingListControllerTests {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
+        ShoppingListDTO receivedShoppingList = objectMapper.readValue(postMvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
 
-        ShoppingListDTO shoppingList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
-        assertThat(shoppingList).isNotNull();
-        assertThat(shoppingList.getName()).isEqualTo(newShoppingList.getName());
-        assertThat(shoppingList.getUserId()).isEqualTo(newShoppingList.getUser().getId());
+        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + receivedShoppingList.getId())
+                        .headers(httpHeaders))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        ShoppingListDTO fetchedShoppingList = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
+
+        assertThat(fetchedShoppingList).isNotNull();
+        assertThat(fetchedShoppingList.getName()).isEqualTo(newShoppingList.getName());
+        assertThat(fetchedShoppingList.getUserId()).isEqualTo(newShoppingList.getUser().getId());
     }
 
     @Test
     void shouldEditShoppingList() throws Exception {
         ShoppingList newShoppingList = createShoppingList();
+        RequestShoppingListDTO shoppingListToEdit = ShoppingListDTOMapper.mapToCreateShoppingListDTO(newShoppingList);
+        shoppingListToEdit.setName("Edited list");
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(newShoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + newShoppingList.getId())
+        MvcResult putMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + newShoppingList.getId())
+                        .headers(httpHeaders)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ShoppingList(newShoppingList.getId(), "Edited list", null, null, null))))
+                        .content(objectMapper.writeValueAsString(shoppingListToEdit)))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
+        ShoppingListDTO receivedShoppingList = objectMapper.readValue(putMvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
 
-        ShoppingListDTO shoppingList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
-        assertThat(shoppingList.getName()).isEqualTo("Edited list");
+        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + receivedShoppingList.getId())
+                        .headers(httpHeaders))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        ShoppingListDTO fetchedShoppingListDTO = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), ShoppingListDTO.class);
+
+        assertThat(fetchedShoppingListDTO.getName()).isEqualTo("Edited list");
+        assertThat(fetchedShoppingListDTO.getUserId()).isEqualTo(newShoppingList.getUser().getId());
     }
 
 
     @Test
     void shouldRemoveShoppingListById() throws Exception {
         ShoppingList shoppingList = createShoppingList();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/{id}", shoppingList.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/{id}", shoppingList.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{id}", shoppingList.getId())
+                        .headers(httpHeaders))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
     void shouldRemoveShoppingLists() throws Exception {
         ShoppingList shoppingList = createShoppingList();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping")
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping")
+                        .headers(httpHeaders))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        List<ShoppingListDTO> shoppingListDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<ShoppingListDTO>>() {
+        });
+        assertThat(shoppingListDTOs).isEmpty();
     }
 
     @Test
     void shouldRemoveOldShoppingLists() throws Exception {
         ShoppingList shoppingList = createShoppingList();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/old"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/old")
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping")
+                        .headers(httpHeaders))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        List<ShoppingListDTO> shoppingListDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<ShoppingListDTO>>() {
+        });
+        assertThat(shoppingListDTOs).isEmpty();
     }
 }

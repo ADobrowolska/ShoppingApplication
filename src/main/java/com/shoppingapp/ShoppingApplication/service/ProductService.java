@@ -80,7 +80,7 @@ public class ProductService {
                 .filter(prod -> prod.getId() == id)
                 .findFirst()
                 .orElseThrow();
-        shoppingList.getProducts().remove(deletedProduct);
+        shoppingList.removeProduct(deletedProduct);
         productRepository.deleteById(deletedProduct.getId());
     }
 

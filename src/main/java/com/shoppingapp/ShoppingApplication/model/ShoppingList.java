@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 public class ShoppingList {
 
-    public ShoppingList(int id, String name, Instant timeOfLastEditing, List<Product> products, User user) {
+    public ShoppingList(Integer id, String name, Instant timeOfLastEditing, List<Product> products, User user) {
         this.id = id;
         this.name = name;
         this.timeOfLastEditing = timeOfLastEditing;
@@ -28,7 +28,7 @@ public class ShoppingList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String name;
     @Column(name = "time_act")
     private Instant timeOfLastEditing;
@@ -52,5 +52,7 @@ public class ShoppingList {
         product.setShoppingList(this);
     }
 
-
+    public void removeProduct(Product product) {
+        products.remove(product);
+    }
 }

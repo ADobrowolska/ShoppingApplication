@@ -13,14 +13,13 @@ import java.util.stream.Collectors;
 
 public class ShoppingListDTOMapper {
 
-    public static ShoppingList mapDTOToShoppingListModel(CreateShoppingListDTO shoppingListDTO) {
+    public static ShoppingList mapDTOToShoppingListModel(RequestShoppingListDTO shoppingListDTO) {
         return ShoppingList.builder()
-                .id(shoppingListDTO.getId())
                 .name(shoppingListDTO.getName())
                 .build();
     }
 
-    public static List<ShoppingList> mapDTOsToShoppingListModelList(List<CreateShoppingListDTO> shoppingListDTOList) {
+    public static List<ShoppingList> mapDTOsToShoppingListModelList(List<RequestShoppingListDTO> shoppingListDTOList) {
         return shoppingListDTOList.stream()
                 .map(shoppingListDTO -> mapDTOToShoppingListModel(shoppingListDTO))
                 .toList();
@@ -43,6 +42,12 @@ public class ShoppingListDTOMapper {
                         .toList()
                         : new ArrayList<>())
                 .categories(getCategories(shoppingList.getProducts()))
+                .build();
+    }
+
+    public static RequestShoppingListDTO mapToCreateShoppingListDTO(ShoppingList shoppingList) {
+        return RequestShoppingListDTO.builder()
+                .name(shoppingList.getName())
                 .build();
     }
 
