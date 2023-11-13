@@ -21,13 +21,13 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/shopping/category/x")
+    @GetMapping("/shopping/all-categories")
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         List<CategoryDTO> categoryDTOs = CategoryDTOMapper.mapToCategoryDTOs(categoryService.getAllCategories());
         return ResponseEntity.ok(categoryDTOs);
     }
 
-    @GetMapping(value = "/shopping/category", params = "searchBy")
+    @GetMapping(value = "/shopping/categories", params = "searchBy")
     public ResponseEntity<List<CategoryDTO>> getCategories(@RequestParam String searchBy) {
         List<CategoryDTO> categoryDTOs = CategoryDTOMapper.mapToCategoryDTOs(categoryService.getCategoriesByParam(searchBy));
         return ResponseEntity.ok(categoryDTOs);
