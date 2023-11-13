@@ -1,7 +1,9 @@
 package com.shoppingapp.ShoppingApplication.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.shoppingapp.ShoppingApplication.dto.category.CategoryDTO;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,49 +49,63 @@ class CategoryControllerTest {
     private Category createCategory(String name) {
         Category category = new Category();
         category.setName(name);
-        categoryRepository.save(category);
-        return category;
+        return categoryRepository.save(category);
     }
 
     @Test
     void getAllCategories() throws Exception {
-        //given
         List<Category> categoryList = new ArrayList<>();
         categoryList.add(category1);
         categoryList.add(category2);
-        //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/category/x")
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/all-categories")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
 
-        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class);
-        List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), collectionType);
-        assertThat(receivedCategoryList).isNotNull();
-        assertThat(receivedCategoryList.size()).isEqualTo(categoryList.size());
-        assertThat(receivedCategoryList.get(0).getName()).isEqualTo(categoryList.get(0).getName());
+        List<CategoryDTO> categoryDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<CategoryDTO>>() {
+        });
+        assertThat(categoryDTOs).isNotNull();
+        assertThat(categoryDTOs.size()).isEqualTo(categoryList.size());
+        assertThat(categoryDTOs.get(0).getName()).isEqualTo(categoryList.get(0).getName());
     }
 
     @Test
     void getCategories() throws Exception {
-        //given
         List<Category> categoryList = new ArrayList<>();
         categoryList.add(category1);
         categoryList.add(category2);
         String word = "pie";
-        //when
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/category")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/categories")
                         .param("searchBy", word))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
-        //then
-        CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class);
-        List<Category> receivedCategoryList = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), collectionType);
-        assertThat(receivedCategoryList).isNotNull();
-        assertThat(receivedCategoryList.size()).isEqualTo(1);
-        assertThat(receivedCategoryList.get(0).getName()).isEqualTo(category1.getName());
+
+        List<CategoryDTO> categoryDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<CategoryDTO>>() {
+        });
+        assertThat(categoryDTOs).isNotNull();
+        assertThat(categoryDTOs.size()).isEqualTo(1);
+        assertThat(categoryDTOs.get(0).getName()).isEqualTo(category1.getName());
     }
+
+    @Test
+    void getCategories_NotFound() throws Exception {
+        List<Category> categoryList = new ArrayList<>();
+        categoryList.add(category1);
+        categoryList.add(category2);
+        String word = "iezcyw";
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/categories")
+                        .param("searchBy", word))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+        List<CategoryDTO> categoryDTOs = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<CategoryDTO>>() {
+        });
+        assertThat(categoryDTOs).isEmpty();
+        assertThat(categoryDTOs.size()).isEqualTo(0);
+
+    }
+
 }
