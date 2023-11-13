@@ -232,6 +232,6 @@ class ProductControllerTest {
         List<ProductDTO> products = objectMapper.readValue(getMvcResult.getResponse().getContentAsString(), new TypeReference<List<ProductDTO>>() {
         });
         assertThat(products.stream()
-                .noneMatch(productDTO -> productDTO.getId() == product.getId())).isTrue();
+                .noneMatch(productDTO -> productDTO.getId().equals(product.getId()))).isTrue();
     }
 }

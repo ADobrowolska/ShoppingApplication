@@ -67,7 +67,7 @@ public class ProductService {
     public Product editProduct(int shoppingListId, Product product) {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         Product editedProduct = shoppingList.getProducts().stream()
-                .filter(product1 -> product1.getId() == product.getId())
+                .filter(product1 -> product1.getId().equals(product.getId()))
                 .findFirst().orElseThrow();
         editedProduct.setName(product.getName());
         editedProduct.setQuantity(product.getQuantity());
@@ -77,7 +77,7 @@ public class ProductService {
     public void deleteProduct(int shoppingListId, int id) {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         Product deletedProduct = shoppingList.getProducts().stream()
-                .filter(prod -> prod.getId() == id)
+                .filter(prod -> prod.getId().equals(id))
                 .findFirst()
                 .orElseThrow();
         shoppingList.removeProduct(deletedProduct);

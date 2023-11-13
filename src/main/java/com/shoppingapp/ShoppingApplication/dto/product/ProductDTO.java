@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class ProductDTO {
 
-    private int id;
+    private Integer id;
     private String name;
     private int quantity;
-    private int categoryId;
+    private Integer categoryId;
 
 
 
