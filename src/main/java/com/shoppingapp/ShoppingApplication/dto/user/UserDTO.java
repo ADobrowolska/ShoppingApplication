@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class UserDTO {
 
-    private int id;
+    private Integer id;
     private String firstName;
     private String lastName;
     private String email;
