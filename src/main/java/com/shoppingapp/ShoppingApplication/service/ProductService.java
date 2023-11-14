@@ -30,28 +30,26 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    private ShoppingList findingShoppingListById(int shoppingListId) {
-        return shoppingListRepository.findById(shoppingListId).orElseThrow();
-    }
-
-    public Product getSingleProduct(int id, int shoppingListId) {
-        ShoppingList shoppingList = findingShoppingListById(shoppingListId);
+    public Product getSingleProduct(int id, int shoppingListId, int userId) {
+        ShoppingList shoppingList = shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
+                .orElseThrow(() -> new NoSuchElementException("Shopping list could not be found."));
         return shoppingList.getProducts().stream()
-                .filter(product -> product.getId() == id)
+                .filter(product -> product.getId().equals(id))
                 .findFirst()
                 .orElseThrow();
     }
 
 
-    public List<Product> getProductsFromShoppingList(int shoppingListId) {
-        ShoppingList shoppingList = shoppingListRepository.findById(shoppingListId)
+    public List<Product> getProductsFromShoppingList(int shoppingListId, int userId) {
+        ShoppingList shoppingList = shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
                 .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
         return productRepository.findAllByShoppingListId(shoppingListId);
     }
 
 
-    public Product addProductToShoppingList(Product product, int shoppingListId) throws InstanceAlreadyExistsException {
-        ShoppingList shoppingList = findingShoppingListById(shoppingListId);
+    public Product addProductToShoppingList(Product product, int shoppingListId, int userId) throws InstanceAlreadyExistsException {
+        ShoppingList shoppingList = shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
+                .orElseThrow(() -> new NoSuchElementException("Shopping list could not be found."));
         if (!productRepository.existsByName(product.getName())) {
             shoppingList.setTimeOfLastEditing(Instant.now());
             if (product.getQuantity() == 0) {
@@ -66,8 +64,9 @@ public class ProductService {
     }
 
     @Transactional
-    public Product editProduct(int shoppingListId, Product product) {
-        ShoppingList shoppingList = findingShoppingListById(shoppingListId);
+    public Product editProduct(int shoppingListId, int userId, Product product) {
+        ShoppingList shoppingList = shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
+                .orElseThrow(() -> new NoSuchElementException("Shopping list could not be found."));
         Product editedProduct = shoppingList.getProducts().stream()
                 .filter(product1 -> product1.getId().equals(product.getId()))
                 .findFirst().orElseThrow();
@@ -76,8 +75,9 @@ public class ProductService {
         return editedProduct;
     }
 
-    public void deleteProduct(int shoppingListId, int id) {
-        ShoppingList shoppingList = findingShoppingListById(shoppingListId);
+    public void deleteProduct(int shoppingListId, int userId, int id) {
+        ShoppingList shoppingList = shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
+                .orElseThrow(() -> new NoSuchElementException("Shopping list could not be found."));
         Product deletedProduct = shoppingList.getProducts().stream()
                 .filter(prod -> prod.getId().equals(id))
                 .findFirst()
