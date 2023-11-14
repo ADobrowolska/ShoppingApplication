@@ -187,6 +187,26 @@ class ProductControllerTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenAddProductZeroQuantity() throws Exception {
+        ShoppingList shoppingList = createShoppingList();
+        Category category3 = new Category();
+        category3.setName("Owoce");
+        categoryRepository.save(category3);
+        ProductDTO newProduct = ProductDTO.builder()
+                .name("Kiwi")
+                .quantity(0)
+                .categoryId(category3.getId())
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/shopping/" + shoppingList.getId() + "/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newProduct))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
     void shouldEditProduct() throws Exception {
         ShoppingList shoppingList = createShoppingList();
         ProductDTO productToEdit = ProductDTOMapper.mapToProductDTO(shoppingList.getProducts().get(0));
