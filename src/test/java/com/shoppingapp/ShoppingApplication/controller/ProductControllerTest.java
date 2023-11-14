@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -116,8 +117,11 @@ class ProductControllerTest {
     void shouldGetSingleProduct() throws Exception {
         ShoppingList shoppingList = createShoppingList();
         Product product = shoppingList.getProducts().get(0);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + product.getId()))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + product.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
@@ -131,8 +135,11 @@ class ProductControllerTest {
     @Test
     void shouldGetSingleProduct_NotFound() throws Exception {
         ShoppingList shoppingList = createShoppingList();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/-1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/-1")
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(404));
     }
@@ -141,13 +148,17 @@ class ProductControllerTest {
     void shouldGetProductsOnShoppingList() throws Exception {
         ShoppingList shoppingList = createShoppingList();
         List<Product> products = shoppingList.getProducts();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId()))
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
 
-        List<ProductDTO> newProducts = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
+        List<ProductDTO> newProducts = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<ProductDTO>>() {
+        });
         assertThat(newProducts).isNotNull();
         assertThat(newProducts.size()).isEqualTo(products.size());
 
@@ -164,6 +175,8 @@ class ProductControllerTest {
                 .quantity(1)
                 .categoryId(category2.getId())
                 .build();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/shopping/" + shoppingList.getId() + "/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -176,6 +189,7 @@ class ProductControllerTest {
         ProductDTO receivedProduct = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ProductDTO.class);
 
         mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + receivedProduct.getId())
+                        .headers(httpHeaders)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
@@ -213,6 +227,8 @@ class ProductControllerTest {
         productToEdit.setName("Grahamka");
         productToEdit.setQuantity(4);
         productToEdit.setCategoryId(category1.getId());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
         MvcResult putMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + shoppingList.getId() + "/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -224,6 +240,7 @@ class ProductControllerTest {
         ProductDTO receivedProduct = objectMapper.readValue(putMvcResult.getResponse().getContentAsString(), ProductDTO.class);
 
         MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/" + shoppingList.getId() + "/products/" + receivedProduct.getId())
+                        .headers(httpHeaders)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
@@ -238,13 +255,16 @@ class ProductControllerTest {
     void shouldRemoveProduct() throws Exception {
         ShoppingList shoppingList = createShoppingList();
         Product product = shoppingList.getProducts().get(0);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/" + shoppingList.getId() + "/products/" + product.getId()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
 
-        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId()))
+        MvcResult getMvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/shopping/{shoppingListId}/products", shoppingList.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andReturn();
