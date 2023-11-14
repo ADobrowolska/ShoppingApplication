@@ -54,13 +54,15 @@ public class ProductService {
         ShoppingList shoppingList = findingShoppingListById(shoppingListId);
         if (!productRepository.existsByName(product.getName())) {
             shoppingList.setTimeOfLastEditing(Instant.now());
+            if (product.getQuantity() == 0) {
+                throw new IllegalArgumentException("Product quantity cannot be 0");
+            }
             product.setCategory(categoryRepository.findById(product.getCategory().getId()).orElseThrow());
             shoppingList.addProduct(product);
             return productRepository.save(product);
         } else {
             throw new InstanceAlreadyExistsException("Product is on the list");
         }
-
     }
 
     @Transactional
