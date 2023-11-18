@@ -1,3 +1,6 @@
+--liquibase formatted sql
+--changeset adobrowolska:1
+
 CREATE TABLE shopping_list (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(250) NOT NULL,
@@ -47,3 +50,5 @@ ALTER TABLE shopping_list
 ALTER TABLE user_role
     ADD CONSTRAINT user_role_user_id_fk
     FOREIGN KEY (user_id) REFERENCES application_user(id);
+
+

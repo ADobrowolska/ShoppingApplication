@@ -1,3 +1,6 @@
+--liquibase formatted sql
+--changeset adobrowolska:2
+
 INSERT INTO application_user(first_name, last_name, email) VALUES ('Anna', 'Nowak', 'annanowak@gmail.com');
 INSERT INTO application_user(first_name, last_name, email) VALUES ('Jan', 'Kowalski', 'jankowalski@gmail.com');
 
@@ -22,6 +25,3 @@ INSERT INTO product (name, quantity, shopping_List_Id, category_id) VALUES ('Dor
 INSERT INTO product (name, quantity, shopping_List_Id, category_id) VALUES ('Pomidor', 4, 2, 5);
 INSERT INTO product (name, quantity, shopping_List_Id, category_id) VALUES ('Banan', 4, 2, 4);
 INSERT INTO product (name, quantity, shopping_List_Id, category_id) VALUES ('Jogurt', 2, 2, 3);
-
-
-
