@@ -179,6 +179,7 @@ class ProductControllerTest {
         httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/shopping/" + shoppingList.getId() + "/products")
+                        .headers(httpHeaders)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newProduct))
                         .accept(MediaType.APPLICATION_JSON))
@@ -231,6 +232,7 @@ class ProductControllerTest {
         httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
         MvcResult putMvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/shopping/" + shoppingList.getId() + "/products")
+                        .headers(httpHeaders)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productToEdit)))
                 .andDo(MockMvcResultHandlers.print())
@@ -259,7 +261,8 @@ class ProductControllerTest {
         httpHeaders.add("user-id", String.valueOf(shoppingList.getUser().getId()));
 
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/" + shoppingList.getId() + "/products/" + product.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/shopping/" + shoppingList.getId() + "/products/" + product.getId())
+                        .headers(httpHeaders))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is(200));
 

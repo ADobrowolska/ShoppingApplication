@@ -3,6 +3,7 @@ package com.shoppingapp.ShoppingApplication.service;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

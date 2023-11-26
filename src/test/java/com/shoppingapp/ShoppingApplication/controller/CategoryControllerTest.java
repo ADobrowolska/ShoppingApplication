@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shoppingapp.ShoppingApplication.dto.category.CategoryDTO;
 import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.repository.CategoryRepository;
+import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ class CategoryControllerTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     Category category1;
@@ -40,6 +44,7 @@ class CategoryControllerTest {
 
     @BeforeEach
     void setUp() {
+        productRepository.deleteAll();;
         categoryRepository.deleteAll();
         category1 = createCategory("Pieczywo");
         category2 = createCategory("Napoje");
