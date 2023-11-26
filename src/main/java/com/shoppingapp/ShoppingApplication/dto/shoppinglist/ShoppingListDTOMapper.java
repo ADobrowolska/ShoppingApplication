@@ -5,10 +5,8 @@ import com.shoppingapp.ShoppingApplication.model.Category;
 import com.shoppingapp.ShoppingApplication.model.Product;
 import com.shoppingapp.ShoppingApplication.model.ShoppingList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ShoppingListDTOMapper {
@@ -53,7 +51,7 @@ public class ShoppingListDTOMapper {
 
     private static List<ShoppingListCategoryDTO> getCategories(List<Product> products) {
         Map<Category, List<Product>> productsGroupByCategoryMap = new HashMap<>();
-        if(products == null){
+        if (products == null) {
             return null;
         }
         for (Product product : products) {
@@ -80,4 +78,34 @@ public class ShoppingListDTOMapper {
         }
         return shoppingListCategoryDTOS;
     }
+
+
+
+
+
+    private static List<ShoppingListCategoryDTO> getCategoriesV2(List<Product> products) {
+        if (products == null) {
+            return null;
+        }
+        Map<Category, List<Product>> productsGroupedByCategoryMap = products.stream()
+                .collect(Collectors.groupingBy(product -> product.getCategory()));
+
+        return toShoppingListCategoryDTOList(productsGroupedByCategoryMap);
+    }
+
+    private static List<ShoppingListCategoryDTO> toShoppingListCategoryDTOList(Map<Category, List<Product>> categoryListMap) {
+
+        return categoryListMap.entrySet().stream()
+                .map(entry -> {
+                    Category category = entry.getKey();
+                    List<Product> productList = entry.getValue();
+                    return ShoppingListCategoryDTO.builder()
+                            .id(category.getId())
+                            .name(category.getName())
+                            .products(ProductDTOMapper.mapToProductDTOs(productList))
+                            .build();
+                })
+                .toList();
+    }
+
 }
