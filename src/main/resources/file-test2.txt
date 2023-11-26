@@ -1,0 +1,3 @@
+second file
+second line
+./file-test.txt
