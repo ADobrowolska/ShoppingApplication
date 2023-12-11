@@ -6,10 +6,12 @@ import com.shoppingapp.ShoppingApplication.repository.ProductRepository;
 import com.shoppingapp.ShoppingApplication.repository.ShoppingListRepository;
 import com.shoppingapp.ShoppingApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -78,5 +80,15 @@ public class ShoppingListService {
                 .orElseThrow(() -> new NoSuchElementException("NoSuchElementException!"));
         return shoppingListRepository.findAllByUserId(userId);
     }
+
+    @Scheduled(cron = "0 */1 * ? * *", zone = "Europe/Warsaw")
+    void deleteOlderThat2Weeks() {
+        List<ShoppingList> oldShoppingLists = shoppingListRepository.getOldShoppingLists(Instant.now().minus(Period.ofDays(14)));
+        shoppingListRepository.deleteAll(oldShoppingLists);
+        System.out.println("All Shopping Lists older than " + Instant.now().minus(Period.ofDays(14)) + " deleted");
+
+    }
+
+
 
 }

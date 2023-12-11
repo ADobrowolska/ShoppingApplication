@@ -19,13 +19,11 @@ public interface ShoppingListRepository extends JpaRepository<ShoppingList, Inte
     int deleteOldShoppingList(@Param("date")Instant date);
 
     @Query("SELECT sl FROM ShoppingList sl WHERE sl.timeOfLastEditing < :date")
-    List<ShoppingList> getOldShoppingList(@Param("date")Instant date);
+    List<ShoppingList> getOldShoppingLists(@Param("date")Instant date);
 
     List<ShoppingList> findAllByTimeOfLastEditingLessThan(Instant instant);
 
     List<ShoppingList> findAllByTimeOfLastEditingLessThanAndUserId(Instant instant, int userId);
-
-    void deleteAllByTimeOfLastEditingLessThan(Instant instant);
 
     List<ShoppingList> findAllByUserId(int userId);
 
