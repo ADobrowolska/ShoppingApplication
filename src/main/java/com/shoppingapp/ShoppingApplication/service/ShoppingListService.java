@@ -85,12 +85,13 @@ public class ShoppingListService {
     }
 
     @Scheduled(cron = "0 */1 * ? * *", zone = "Europe/Warsaw")
-    void deleteOlderThat2Weeks() {
-        List<ShoppingList> oldShoppingLists = shoppingListRepository.getOldShoppingLists(Instant.now().minus(Period.ofDays(14)));
+    void deleteOlderThan() {
+        deleteOlderThan(Instant.now().minus(Period.ofDays(14)));
+    }
+
+    void deleteOlderThan(Instant date) {
+        List<ShoppingList> oldShoppingLists = shoppingListRepository.getOldShoppingLists(date);
         shoppingListRepository.deleteAll(oldShoppingLists);
         log.info("All Shopping Lists older than " + Instant.now().minus(Period.ofDays(14)) + " deleted");
     }
-
-
-
 }
