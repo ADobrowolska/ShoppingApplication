@@ -3,8 +3,6 @@ package com.shoppingapp.ShoppingApplication.service;
 import com.shoppingapp.ShoppingApplication.model.User;
 import org.junit.jupiter.api.Test;
 
-import javax.management.InstanceAlreadyExistsException;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -2,6 +2,7 @@ package com.shoppingapp.ShoppingApplication.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shoppingapp.ShoppingApplication.BaseTest;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.RequestShoppingListDTO;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTO;
 import com.shoppingapp.ShoppingApplication.dto.shoppinglist.ShoppingListDTOMapper;
@@ -35,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ShoppingListControllerTests {
+class ShoppingListControllerTests extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,15 +71,9 @@ class ShoppingListControllerTests {
     Category category;
 
     @BeforeEach
-    void setUp() {
-        productRepository.deleteAll();
-        categoryRepository.deleteAll();
-        shoppingListRepository.deleteAll();
-        userRoleRepository.deleteAll();
-        userRepository.deleteAll();
-        Category category = new Category();
-        category.setName("Pieczywo");
-        this.category = categoryRepository.save(category);
+    protected void setUp() {
+        super.setUp();
+        this.category = createCategory("Pieczywo");
     }
 
     protected ShoppingList createShoppingList() throws InstanceAlreadyExistsException {
